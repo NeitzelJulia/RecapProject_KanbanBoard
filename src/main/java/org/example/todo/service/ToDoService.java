@@ -39,4 +39,8 @@ public class ToDoService {
     public ToDo updateTodo(ToDo toDo) {
         return toDoRepo.save(toDo);
     }
+
+    public void deleteTodo(String id) {
+        toDoRepo.deleteById(id);
+    }
 }

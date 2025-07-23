@@ -36,4 +36,9 @@ public class ToDoController {
     public ToDo updateToDo(@PathVariable String id, @RequestBody ToDo toDo) {
         return toDoService.updateTodo(toDo);
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteToDo(@PathVariable String id) {
+        toDoService.deleteTodo(id);
+    }
 }
