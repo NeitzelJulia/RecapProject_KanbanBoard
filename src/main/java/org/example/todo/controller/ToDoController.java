@@ -3,8 +3,11 @@ package org.example.todo.controller;
 import org.example.todo.dto.CreateToDoDto;
 import org.example.todo.model.ToDo;
 import org.example.todo.service.ToDoService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -28,8 +31,17 @@ public class ToDoController {
     }
 
     @PostMapping
-    public ToDo addToDo(@RequestBody CreateToDoDto createToDoDto) {
-        return toDoService.addTodo(createToDoDto);
+    public ResponseEntity<ToDo> addToDo(@RequestBody CreateToDoDto createToDoDto) {
+        ToDo toDo = toDoService.addTodo(createToDoDto);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(toDo.id())
+                .toUri();
+
+        return ResponseEntity
+                .created(location)
+                .body(toDo);
     }
 
     @PutMapping("/{id}")
