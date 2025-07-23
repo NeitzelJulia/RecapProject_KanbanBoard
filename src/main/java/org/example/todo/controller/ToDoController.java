@@ -50,7 +50,11 @@ public class ToDoController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteToDo(@PathVariable String id) {
+    public ResponseEntity<Void> deleteToDo(@PathVariable String id) {
         toDoService.deleteTodo(id);
+
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 }
