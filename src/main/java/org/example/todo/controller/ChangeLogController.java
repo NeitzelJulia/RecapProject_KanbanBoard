@@ -25,4 +25,13 @@ public class ChangeLogController {
         }
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/redo")
+    public ResponseEntity<ToDo> redo() {
+        ToDo result = changeLogService.redoLast();
+        if(result == null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(result);
+    }
 }

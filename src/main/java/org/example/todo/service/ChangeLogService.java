@@ -22,7 +22,8 @@ public class ChangeLogService {
     }
 
     public ToDo undoLast() {
-        ChangeLogEntry entry = changeLogRepo.findTopByStackTypeOrderByTimestampDesc(StackType.UNDO)
+        ChangeLogEntry entry = changeLogRepo
+                .findTopByStackTypeOrderByTimestampDesc(StackType.UNDO)
                 .orElseThrow(NoChangeLogEntryException::new);
 
         ChangeLogEntry redoEntry = new ChangeLogEntry(
@@ -41,6 +42,30 @@ public class ChangeLogService {
                 yield null;
             }
             case UPDATE, DELETE -> toDoRepo.save(entry.before());
+        };
+    }
+
+    public ToDo redoLast() {
+        ChangeLogEntry entry = changeLogRepo
+                .findTopByStackTypeOrderByTimestampDesc(StackType.REDO)
+                .orElseThrow(NoChangeLogEntryException::new);
+
+        ChangeLogEntry undoEntry = new ChangeLogEntry(
+                entry.id(),
+                entry.changeActionType(),
+                StackType.UNDO,
+                entry.before(),
+                entry.after(),
+                Instant.now()
+        );
+        changeLogRepo.save(undoEntry);
+
+        return switch (entry.changeActionType()) {
+            case CREATE, UPDATE -> toDoRepo.save(entry.after());
+            case DELETE -> {
+                toDoRepo.deleteById(entry.before().id());
+                yield null;
+            }
         };
     }
 }
