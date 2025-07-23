@@ -22,6 +22,10 @@ public class ToDoService {
         return toDoRepo.findAll();
     }
 
+    public ToDo findById(String id) {
+        return toDoRepo.findById(id).orElse(null);
+    }
+
     public ToDo addTodo(CreateToDoDto createToDoDto) {
         ToDo toDo = new ToDo(
                 idService.randomId(),

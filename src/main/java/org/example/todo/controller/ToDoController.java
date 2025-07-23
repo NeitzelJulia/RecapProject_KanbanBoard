@@ -22,6 +22,11 @@ public class ToDoController {
         return toDoService.findAll();
     }
 
+    @GetMapping("/{id}")
+    public ToDo findById(@PathVariable String id) {
+        return toDoService.findById(id);
+    }
+
     @PostMapping
     public ToDo addToDo(@RequestBody CreateToDoDto createToDoDto) {
         return toDoService.addTodo(createToDoDto);
