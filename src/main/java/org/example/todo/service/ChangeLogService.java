@@ -69,8 +69,6 @@ public class ChangeLogService {
                     toDoRepo.deleteById(entry.before().id());
                     yield null;
                 }
-            default:
-                throw new IllegalStateException("Unexpected value: " + entry.changeActionType());
         };
     }
 }
