@@ -4,10 +4,10 @@ import org.example.todo.dto.CreateToDoDto;
 import org.example.todo.dto.UpdateToDoDto;
 import org.example.todo.exception.ToDoNotFoundException;
 import org.example.todo.model.ToDo;
-import org.example.todo.model.UndoActionType;
-import org.example.todo.model.UndoEntry;
+import org.example.todo.model.ChangeActionType;
+import org.example.todo.model.ChangeLogEntry;
 import org.example.todo.repository.ToDoRepo;
-import org.example.todo.repository.UndoRepo;
+import org.example.todo.repository.ChangeLogRepo;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -18,12 +18,12 @@ public class ToDoService {
 
     private final ToDoRepo toDoRepo;
     private final IdService idService;
-    private final UndoRepo undoRepo;
+    private final ChangeLogRepo changeLogRepo;
 
-    public ToDoService(ToDoRepo toDoRepo, IdService idService,  UndoRepo undoRepo) {
+    public ToDoService(ToDoRepo toDoRepo, IdService idService,  ChangeLogRepo changeLogRepo) {
         this.toDoRepo = toDoRepo;
         this.idService = idService;
-        this.undoRepo = undoRepo;
+        this.changeLogRepo = changeLogRepo;
     }
 
     public List<ToDo> findAll() {
@@ -43,9 +43,9 @@ public class ToDoService {
 
         ToDo saved = toDoRepo.save(toDo);
 
-        undoRepo.save(new UndoEntry(
+        changeLogRepo.save(new ChangeLogEntry(
                 idService.randomId(),
-                UndoActionType.CREATE,
+                ChangeActionType.CREATE,
                 saved,
                 Instant.now()
         ));
@@ -57,9 +57,9 @@ public class ToDoService {
         ToDo existingToDo = toDoRepo.findById(id)
                 .orElseThrow(() -> new ToDoNotFoundException(id));
 
-        undoRepo.save(new UndoEntry(
+        changeLogRepo.save(new ChangeLogEntry(
                 idService.randomId(),
-                UndoActionType.UPDATE,
+                ChangeActionType.UPDATE,
                 existingToDo,
                 Instant.now()
         ));
@@ -77,9 +77,9 @@ public class ToDoService {
         ToDo existingToDo = toDoRepo.findById(id)
                 .orElseThrow(() -> new ToDoNotFoundException(id));
 
-        undoRepo.save(new UndoEntry(
+        changeLogRepo.save(new ChangeLogEntry(
                 idService.randomId(),
-                UndoActionType.DELETE,
+                ChangeActionType.DELETE,
                 existingToDo,
                 Instant.now()
         ));

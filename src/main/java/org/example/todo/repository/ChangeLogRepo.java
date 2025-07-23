@@ -1,12 +1,12 @@
 package org.example.todo.repository;
 
-import org.example.todo.model.UndoEntry;
+import org.example.todo.model.ChangeLogEntry;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UndoRepo extends MongoRepository<UndoEntry, String> {
-    Optional<UndoEntry> findTopByOrderByTimestampDesc();
+public interface ChangeLogRepo extends MongoRepository<ChangeLogEntry, String> {
+    Optional<ChangeLogEntry> findTopByOrderByTimestampDesc();
 }

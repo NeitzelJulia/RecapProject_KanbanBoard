@@ -1,25 +1,25 @@
 package org.example.todo.controller;
 
 import org.example.todo.model.ToDo;
-import org.example.todo.service.UndoService;
+import org.example.todo.service.ChangeLogService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/undo")
-public class UndoController {
+@RequestMapping()
+public class ChangeLogController {
 
-    private final UndoService undoService;
+    private final ChangeLogService changeLogService;
 
-    public UndoController(UndoService undoService) {
-        this.undoService = undoService;
+    public ChangeLogController(ChangeLogService changeLogService) {
+        this.changeLogService = changeLogService;
     }
 
-    @GetMapping
+    @GetMapping("/undo")
     public ResponseEntity<ToDo> undo() {
-        ToDo result = undoService.undoLast();
+        ToDo result = changeLogService.undoLast();
         if(result == null) {
             return ResponseEntity.noContent().build();
         }

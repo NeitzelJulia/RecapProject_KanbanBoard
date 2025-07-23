@@ -1,6 +1,6 @@
 package org.example.todo.model;
 
-public enum UndoActionType {
+public enum ChangeActionType {
     CREATE,
     UPDATE,
     DELETE
