@@ -3,6 +3,7 @@ package org.example.todo.service;
 import org.example.todo.dto.CreateToDoDto;
 import org.example.todo.dto.UpdateToDoDto;
 import org.example.todo.exception.ToDoNotFoundException;
+import org.example.todo.model.StackType;
 import org.example.todo.model.ToDo;
 import org.example.todo.model.ChangeActionType;
 import org.example.todo.model.ChangeLogEntry;
@@ -46,6 +47,8 @@ public class ToDoService {
         changeLogRepo.save(new ChangeLogEntry(
                 idService.randomId(),
                 ChangeActionType.CREATE,
+                StackType.UNDO,
+                null,
                 saved,
                 Instant.now()
         ));
@@ -57,20 +60,22 @@ public class ToDoService {
         ToDo existingToDo = toDoRepo.findById(id)
                 .orElseThrow(() -> new ToDoNotFoundException(id));
 
-        changeLogRepo.save(new ChangeLogEntry(
-                idService.randomId(),
-                ChangeActionType.UPDATE,
-                existingToDo,
-                Instant.now()
-        ));
-
-        ToDo updated = new ToDo(
+        ToDo updatedToDo = new ToDo(
                 existingToDo.id(),
                 updateToDoDto.description(),
                 updateToDoDto.status()
         );
 
-        return toDoRepo.save(updated);
+        changeLogRepo.save(new ChangeLogEntry(
+                idService.randomId(),
+                ChangeActionType.UPDATE,
+                StackType.UNDO,
+                existingToDo,
+                updatedToDo,
+                Instant.now()
+        ));
+
+        return toDoRepo.save(updatedToDo);
     }
 
     public void deleteTodo(String id) {
@@ -80,7 +85,9 @@ public class ToDoService {
         changeLogRepo.save(new ChangeLogEntry(
                 idService.randomId(),
                 ChangeActionType.DELETE,
+                StackType.UNDO,
                 existingToDo,
+                null,
                 Instant.now()
         ));
 

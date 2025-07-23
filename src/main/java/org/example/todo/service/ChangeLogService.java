@@ -1,11 +1,14 @@
 package org.example.todo.service;
 
 import org.example.todo.exception.NoChangeLogEntryException;
+import org.example.todo.model.StackType;
 import org.example.todo.model.ToDo;
 import org.example.todo.model.ChangeLogEntry;
 import org.example.todo.repository.ToDoRepo;
 import org.example.todo.repository.ChangeLogRepo;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
 
 @Service
 public class ChangeLogService {
@@ -19,18 +22,25 @@ public class ChangeLogService {
     }
 
     public ToDo undoLast() {
-        ChangeLogEntry entry = changeLogRepo.findTopByOrderByTimestampDesc()
+        ChangeLogEntry entry = changeLogRepo.findTopByStackTypeOrderByTimestampDesc(StackType.UNDO)
                 .orElseThrow(NoChangeLogEntryException::new);
 
-        changeLogRepo.delete(entry);
+        ChangeLogEntry redoEntry = new ChangeLogEntry(
+                entry.id(),
+                entry.changeActionType(),
+                StackType.REDO,
+                entry.before(),
+                entry.after(),
+                Instant.now()
+        );
+        changeLogRepo.save(redoEntry);
 
-        ToDo payload = entry.toDo();
-        return switch (entry.actionType()) {
+        return switch (entry.changeActionType()) {
             case CREATE -> {
-                toDoRepo.deleteById(payload.id());
+                toDoRepo.deleteById(entry.after().id());
                 yield null;
             }
-            case UPDATE, DELETE -> toDoRepo.save(payload);
+            case UPDATE, DELETE -> toDoRepo.save(entry.before());
         };
     }
 }
