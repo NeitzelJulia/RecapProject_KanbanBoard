@@ -38,14 +38,9 @@ public class ChangeLogService {
                 .findTopByStackTypeOrderByTimestampDesc(readFrom)
                 .orElseThrow(NoChangeLogEntryException::new);
 
-        ChangeLogEntry moved = new ChangeLogEntry(
-                entry.id(),
-                entry.changeActionType(),
-                writeTo,
-                entry.before(),
-                entry.after(),
-                Instant.now()
-        );
+        ChangeLogEntry moved = entry
+                .withStackType(writeTo)
+                .withTimestamp(Instant.now());
         changeLogRepo.save(moved);
 
         return switch (entry.changeActionType()) {
