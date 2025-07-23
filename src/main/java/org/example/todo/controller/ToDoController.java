@@ -1,6 +1,7 @@
 package org.example.todo.controller;
 
 import org.example.todo.dto.CreateToDoDto;
+import org.example.todo.dto.UpdateToDoDto;
 import org.example.todo.model.ToDo;
 import org.example.todo.service.ToDoService;
 import org.springframework.http.ResponseEntity;
@@ -45,8 +46,9 @@ public class ToDoController {
     }
 
     @PutMapping("/{id}")
-    public ToDo updateToDo(@PathVariable String id, @RequestBody ToDo toDo) {
-        return toDoService.updateTodo(toDo);
+    public ResponseEntity<ToDo> updateToDo(@PathVariable String id, @RequestBody UpdateToDoDto updateToDoDto) {
+        ToDo updated = toDoService.updateTodo(id, updateToDoDto);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")

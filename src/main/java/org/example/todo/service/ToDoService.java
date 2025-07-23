@@ -1,6 +1,8 @@
 package org.example.todo.service;
 
 import org.example.todo.dto.CreateToDoDto;
+import org.example.todo.dto.UpdateToDoDto;
+import org.example.todo.exception.ToDoNotFoundException;
 import org.example.todo.model.ToDo;
 import org.example.todo.repository.ToDoRepo;
 import org.springframework.stereotype.Service;
@@ -36,8 +38,17 @@ public class ToDoService {
         return toDoRepo.save(toDo);
     }
 
-    public ToDo updateTodo(ToDo toDo) {
-        return toDoRepo.save(toDo);
+    public ToDo updateTodo(String id, UpdateToDoDto updateToDoDto) {
+        ToDo existingToDo = toDoRepo.findById(id)
+                .orElseThrow(() -> new ToDoNotFoundException(id));
+
+        ToDo updated = new ToDo(
+                existingToDo.id(),
+                updateToDoDto.description(),
+                updateToDoDto.status()
+        );
+
+        return toDoRepo.save(updated);
     }
 
     public void deleteTodo(String id) {
