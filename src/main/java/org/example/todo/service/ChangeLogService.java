@@ -22,14 +22,18 @@ public class ChangeLogService {
     }
 
     public ToDo undoLast() {
-        return processLast(StackType.UNDO, StackType.REDO);
+        return processLast(StackType.UNDO);
     }
 
     public ToDo redoLast() {
-        return processLast(StackType.REDO, StackType.UNDO);
+        return processLast(StackType.REDO);
     }
 
-    private ToDo processLast(StackType readFrom, StackType writeTo) {
+    private ToDo processLast(StackType readFrom) {
+        StackType writeTo = (readFrom == StackType.UNDO)
+                ? StackType.REDO
+                : StackType.UNDO;
+
         ChangeLogEntry entry = changeLogRepo
                 .findTopByStackTypeOrderByTimestampDesc(readFrom)
                 .orElseThrow(NoChangeLogEntryException::new);
