@@ -4,9 +4,13 @@ import org.example.todo.dto.CreateToDoDto;
 import org.example.todo.dto.UpdateToDoDto;
 import org.example.todo.exception.ToDoNotFoundException;
 import org.example.todo.model.ToDo;
+import org.example.todo.model.UndoActionType;
+import org.example.todo.model.UndoEntry;
 import org.example.todo.repository.ToDoRepo;
+import org.example.todo.repository.UndoRepo;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -14,10 +18,12 @@ public class ToDoService {
 
     private final ToDoRepo toDoRepo;
     private final IdService idService;
+    private final UndoRepo undoRepo;
 
-    public ToDoService(ToDoRepo toDoRepo, IdService idService) {
+    public ToDoService(ToDoRepo toDoRepo, IdService idService,  UndoRepo undoRepo) {
         this.toDoRepo = toDoRepo;
         this.idService = idService;
+        this.undoRepo = undoRepo;
     }
 
     public List<ToDo> findAll() {
@@ -35,7 +41,16 @@ public class ToDoService {
                 createToDoDto.status()
                 );
 
-        return toDoRepo.save(toDo);
+        ToDo saved = toDoRepo.save(toDo);
+
+        undoRepo.save(new UndoEntry(
+                idService.randomId(),
+                UndoActionType.CREATE,
+                saved,
+                Instant.now()
+        ));
+
+        return saved;
     }
 
     public ToDo updateTodo(String id, UpdateToDoDto updateToDoDto) {
