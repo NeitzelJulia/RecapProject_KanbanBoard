@@ -30,13 +30,8 @@ public class UndoService {
                 toDoRepo.deleteById(payload.id());
                 yield null;
             }
-            case UPDATE ->  {
-                // ToDo
-                yield null;
-            }
-            case DELETE -> {
-                //ToDo
-                yield null;
+            case UPDATE, DELETE ->  {
+                yield toDoRepo.save(payload);
             }
         };
     }

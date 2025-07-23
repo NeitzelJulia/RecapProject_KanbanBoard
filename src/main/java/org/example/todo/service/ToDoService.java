@@ -57,6 +57,13 @@ public class ToDoService {
         ToDo existingToDo = toDoRepo.findById(id)
                 .orElseThrow(() -> new ToDoNotFoundException(id));
 
+        undoRepo.save(new UndoEntry(
+                idService.randomId(),
+                UndoActionType.UPDATE,
+                existingToDo,
+                Instant.now()
+        ));
+
         ToDo updated = new ToDo(
                 existingToDo.id(),
                 updateToDoDto.description(),
@@ -67,6 +74,16 @@ public class ToDoService {
     }
 
     public void deleteTodo(String id) {
-        toDoRepo.deleteById(id);
+        ToDo existingToDo = toDoRepo.findById(id)
+                .orElseThrow(() -> new ToDoNotFoundException(id));
+
+        undoRepo.save(new UndoEntry(
+                idService.randomId(),
+                UndoActionType.DELETE,
+                existingToDo,
+                Instant.now()
+        ));
+
+        toDoRepo.deleteById(existingToDo.id());
     }
 }
