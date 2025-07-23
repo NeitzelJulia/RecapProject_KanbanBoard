@@ -2,6 +2,6 @@ package org.example.todo.model;
 
 public enum ToDoStatus {
     OPEN,
-    DOING,
+    IN_PROGRESS,
     DONE
 }
