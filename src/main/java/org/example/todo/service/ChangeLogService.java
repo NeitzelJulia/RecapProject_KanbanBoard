@@ -22,50 +22,51 @@ public class ChangeLogService {
     }
 
     public ToDo undoLast() {
-        ChangeLogEntry entry = changeLogRepo
-                .findTopByStackTypeOrderByTimestampDesc(StackType.UNDO)
-                .orElseThrow(NoChangeLogEntryException::new);
-
-        ChangeLogEntry redoEntry = new ChangeLogEntry(
-                entry.id(),
-                entry.changeActionType(),
-                StackType.REDO,
-                entry.before(),
-                entry.after(),
-                Instant.now()
-        );
-        changeLogRepo.save(redoEntry);
-
-        return switch (entry.changeActionType()) {
-            case CREATE -> {
-                toDoRepo.deleteById(entry.after().id());
-                yield null;
-            }
-            case UPDATE, DELETE -> toDoRepo.save(entry.before());
-        };
+        return processLast(StackType.UNDO, StackType.REDO);
     }
 
     public ToDo redoLast() {
+        return processLast(StackType.REDO, StackType.UNDO);
+    }
+
+    private ToDo processLast(StackType readFrom, StackType writeTo) {
         ChangeLogEntry entry = changeLogRepo
-                .findTopByStackTypeOrderByTimestampDesc(StackType.REDO)
+                .findTopByStackTypeOrderByTimestampDesc(readFrom)
                 .orElseThrow(NoChangeLogEntryException::new);
 
-        ChangeLogEntry undoEntry = new ChangeLogEntry(
+        ChangeLogEntry moved = new ChangeLogEntry(
                 entry.id(),
                 entry.changeActionType(),
-                StackType.UNDO,
+                writeTo,
                 entry.before(),
                 entry.after(),
                 Instant.now()
         );
-        changeLogRepo.save(undoEntry);
+        changeLogRepo.save(moved);
 
         return switch (entry.changeActionType()) {
-            case CREATE, UPDATE -> toDoRepo.save(entry.after());
-            case DELETE -> {
-                toDoRepo.deleteById(entry.before().id());
-                yield null;
-            }
+            case CREATE:
+                if (readFrom == StackType.UNDO) {
+                    toDoRepo.deleteById(entry.after().id());
+                    yield null;
+                } else {
+                    yield toDoRepo.save(entry.after());
+                }
+            case UPDATE:
+                if (readFrom == StackType.UNDO) {
+                    yield toDoRepo.save(entry.before());
+                } else  {
+                    yield toDoRepo.save(entry.after());
+                }
+            case DELETE:
+                if (readFrom == StackType.UNDO) {
+                    yield toDoRepo.save(entry.before());
+                } else {
+                    toDoRepo.deleteById(entry.before().id());
+                    yield null;
+                }
+            default:
+                throw new IllegalStateException("Unexpected value: " + entry.changeActionType());
         };
     }
 }
