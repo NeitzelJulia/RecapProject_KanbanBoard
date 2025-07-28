@@ -20,11 +20,13 @@ public class ToDoService {
     private final ToDoRepo toDoRepo;
     private final IdService idService;
     private final ChangeLogRepo changeLogRepo;
+    private final OpenAiService openAiService;
 
-    public ToDoService(ToDoRepo toDoRepo, IdService idService,  ChangeLogRepo changeLogRepo) {
+    public ToDoService(ToDoRepo toDoRepo, IdService idService,  ChangeLogRepo changeLogRepo, OpenAiService openAiService) {
         this.toDoRepo = toDoRepo;
         this.idService = idService;
         this.changeLogRepo = changeLogRepo;
+        this.openAiService = openAiService;
     }
 
     public List<ToDo> findAll() {
@@ -38,7 +40,7 @@ public class ToDoService {
     public ToDo addTodo(CreateToDoDto createToDoDto) {
         ToDo toDo = new ToDo(
                 idService.randomId(),
-                createToDoDto.description(),
+                openAiService.checkSpelling(createToDoDto.description()),
                 createToDoDto.status()
                 );
 
