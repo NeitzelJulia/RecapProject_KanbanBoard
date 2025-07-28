@@ -32,7 +32,7 @@ public class ToDoService {
     }
 
     public ToDo findById(String id) {
-        return toDoRepo.findById(id).orElse(null);
+        return toDoRepo.findById(id).orElseThrow(() -> new ToDoNotFoundException(id));
     }
 
     public ToDo addTodo(CreateToDoDto createToDoDto) {
